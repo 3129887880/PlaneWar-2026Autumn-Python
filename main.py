@@ -20,7 +20,8 @@ class SpriteBase:                               # 实体基类
         screen.blit(self.image, (self.x, self.y))
 
     def get_rect(self):                      # 碰撞矩形
-        return pygame.Rect(self.x, self.y, self.width, self.height)
+        rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        return rect.inflate(-self.width * 0.2, -self.height * 0.4)
 
     @property
     def screen_width(self):
@@ -37,8 +38,8 @@ class Player(SpriteBase):                   # 玩家子类
         x = self.screen_width//2
         y = self.screen_height // 3 * 2
         speed = self.screen_width // 100
-        image = pygame.Surface((50, 50))    # 临时纯色方块当飞机
-        image.fill((0, 255, 0))             # 绿色
+        image = pygame.image.load("Player.png")             # 加载玩家飞机
+        image = pygame.transform.scale(image, (80, 80))     # 缩放到80*80
 
 
         super().__init__(x, y, image, speed, screen)
@@ -55,8 +56,9 @@ class Player(SpriteBase):                   # 玩家子类
 
 class Enemy(SpriteBase):                    # 敌人子类
     def __init__(self, x, y, speed, screen):
-        image = pygame.Surface((40, 40))    # 临时
-        image.fill((255, 0, 0))             # 红色
+        image = pygame.image.load("Enemy.png")              # 加载敌人飞机
+        image = pygame.transform.scale(image, (50, 50))     # 缩放
+        image = pygame.transform.rotate(image, 180)         # 旋转180度，机头朝下
         super().__init__(x, y, image, speed, screen)
 
     def move(self):
@@ -65,8 +67,9 @@ class Enemy(SpriteBase):                    # 敌人子类
 
 class Bullet(SpriteBase):                   # 攻击：子弹
     def __init__(self, x, y,  speed, screen):
-        image = pygame.Surface((10, 10))
-        image.fill((0, 0, 255))             # 蓝色
+        image = pygame.image.load("Bullet.png")                 # 加载子弹
+        image = pygame.transform.scale(image, (20, 20))         # 缩放
+
         super().__init__(x, y, image, speed, screen)
 
     def move(self):
@@ -189,7 +192,14 @@ class Game:
                     self.game_over = True
                     break
 
+            for bullet in self.bullets[:]:
+                if bullet.y + bullet.height < 0:                # 子弹飞出顶部
+                    self.bullets.remove(bullet)
+            for enemy in self.enemies[:]:
+                if enemy.y > self.window_height:                # 敌人飞出底部
+                    self.enemies.remove(enemy)            
 
+            
             # 分数显示
             text = self.font.render(f"分数：{self.score}", True, (255, 255, 255))
             self.screen.blit(text, (10, 10))
