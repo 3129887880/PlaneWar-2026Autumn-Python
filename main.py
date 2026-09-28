@@ -75,10 +75,23 @@ class Bullet(SpriteBase):                   # 攻击：子弹
     def move(self):
         self.y -= self.speed
 
+class Renderer:
+    def __init__(self,screen):
+        self.screen = screen
+
+    # 更新每个实体在屏幕上的位置
+    def draw_all(self, *sprites):
+        for item in sprites:
+            if isinstance(item, (list, tuple)):
+                for sprite in item:
+                    sprite.draw(self.screen)
+            else:
+                item.draw(self.screen)
+
 class Game:
     def __init__(self):
         # 窗口宽度
-        self.window_width = 600
+        self.window_width = 1600
         # 窗口长度
         self.window_height = 900
 
@@ -99,6 +112,8 @@ class Game:
         self.spawn_interval = 60            # 60帧生成一架敌机
 
         self.score = 0                      # 创建分数计数器
+
+        self.renderer = Renderer(self.screen)   # 创建渲染器
 
         # 字体加载
         local_ttf = "字小魂方块黑(商用需授权).ttf"
@@ -126,16 +141,6 @@ class Game:
             x = random.randint(0, self.window_width - 40)               # 随机位置
             self.enemies.append(Enemy(x, -20, 3, self.screen))          # 窗口外出现
 
-    # 更新每个实体在屏幕上的位置
-    @staticmethod
-    def all_sprite(screen, *sprites):
-        for item in sprites:
-            if isinstance(item, (list, tuple)):
-                for sprite in item:
-                    sprite.draw(screen)
-            else:
-                item.draw(screen)
-
     # 对局逻辑
     def main_while(self):
         while not self.game_over:
@@ -157,8 +162,8 @@ class Game:
             self.screen.fill((0, 0, 0))
             operation = pygame.key.get_pressed()                            # 读取操作
             self.player.move(operation)                                     # 执行移动操作
-            # self.player.draw(self.screen)                                 # 把移动后的玩家更新到屏幕上
-            self.all_sprite(self.screen, self.enemies, self.player, self.bullets)          # 更新全部实体到屏幕
+
+
         
             # 生成敌机
             self.spawn_enemy()
@@ -166,12 +171,10 @@ class Game:
             # 敌人移动逻辑
             for enemy in self.enemies:
                 enemy.move()
-                # enemy.draw(self.screen)         
         
             # 子弹移动逻辑
             for bullet in self.bullets:
                 bullet.move()
-                # bullet.draw(self.screen)
         
             # 碰撞逻辑：不写在子弹移动逻辑中的原因是，避免在操作中修改列表
             for bullet in self.bullets[:]:
@@ -199,6 +202,7 @@ class Game:
                 if enemy.y > self.window_height:                # 敌人飞出底部
                     self.enemies.remove(enemy)            
 
+            self.renderer.draw_all(self.enemies, self.player, self.bullets)
             
             # 分数显示
             text = self.font.render(f"分数：{self.score}", True, (255, 255, 255))
@@ -215,7 +219,8 @@ class Game:
 
         # 结束环节
         text = self.font.render(f"游戏结束  得分：{self.score}", True, (255, 255, 255))
-        self.screen.blit(text, (90, 280))
+        text = pygame.transform.scale(text, (self.screen.width//5 * 2, self.screen.height//10))
+        self.screen.blit(text, (self.screen.width//2 - self.screen.width//5, self.screen.height//2 - self.screen.height//20))
         pygame.display.flip()       
         pygame.time.wait(2000)
 
