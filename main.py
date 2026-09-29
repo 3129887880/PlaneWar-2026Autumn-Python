@@ -38,7 +38,7 @@ class Player(SpriteBase):                   # 玩家子类
         x = self.screen_width//2
         y = self.screen_height // 3 * 2
         speed = self.screen_width // 100
-        image = pygame.image.load("Player.png")             # 加载玩家飞机
+        image = pygame.image.load("Player02.png")             # 加载玩家飞机
         image = pygame.transform.scale(image, (80, 80))     # 缩放到80*80
 
 
