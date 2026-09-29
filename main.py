@@ -56,7 +56,7 @@ class Player(SpriteBase):                   # 玩家子类
 
 class Enemy(SpriteBase):                    # 敌人子类
     def __init__(self, x, y, speed, screen):
-        image = pygame.image.load("Enemy.png")              # 加载敌人飞机
+        image = pygame.image.load("Player.png")              # 加载敌人飞机
         image = pygame.transform.scale(image, (50, 50))     # 缩放
         image = pygame.transform.rotate(image, 180)         # 旋转180度，机头朝下
         super().__init__(x, y, image, speed, screen)
